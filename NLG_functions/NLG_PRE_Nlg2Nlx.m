@@ -1,13 +1,8 @@
-function NLG_PRE_Nlg2Nlx(p)
+function p = NLG_PRE_Nlg2Nlx(p)
 
-header_file = 'D:\Scripts\nlx_analysis\NLG_functions\header.txt';
+header_file = 'D:\Scripts\nlxnlg_analysis\NLG_functions\header.txt';
 Nlg_InDir = fullfile(p.path_datain, p.data_dir, 'nlg_data');
 Nlx_OutDir = fullfile(p.path_dataout, p.datadir_out, 'nlx_data');
-
-if exist(Nlx_OutDir, 'dir') && ~isempty(subdir(fullfile(Nlx_OutDir, '*.ncs')))
-    fprintf('NLG files already processed - skipping.\n');
-    return;
-end
 
 num_channels = 16;
 data_cnl_ind = [0:15]; % note that this numbering system is of the neurologger which means channels 0-15
@@ -44,6 +39,14 @@ fs =  1/(ADC_SAMPLE_PERIOD * num_channels);
 uVolt_per_bit = str2num(cell2mat(ADC_resolution_uVolt));
 block_period_time_usec = (512/fs) * 1e6;
 block_period_time_usec_2 = 512 * (ADC_SAMPLE_PERIOD * num_channels) * 1e6;
+
+p.nlg.fs = fs;
+p.nlg.ADC = ADC_SAMPLE_PERIOD;
+
+if exist(Nlx_OutDir, 'dir') && ~isempty(subdir(fullfile(Nlx_OutDir, '*.ncs')))
+    fprintf('NLG files already processed - skipping.\n');
+    return;
+end
 
 %% extract events details
 events_IX = NUM(1:end,1);

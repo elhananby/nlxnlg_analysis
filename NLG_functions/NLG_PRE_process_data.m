@@ -1,17 +1,17 @@
 function p = NLG_PRE_process_data(p)
+global useGPU;
+useGPU = 1;
+
 % 1  convert to CSC
-NLG_PRE_Nlg2Nlx(p);
-% NLG_Nlg2Nlx(p);
+p = NLG_PRE_Nlg2Nlx(p);
 
 % 2 Extract Nlg CSC data, divide into 1-min chunks, and filter it
-Nlg_Flight_extract_and_filter_CSC_parfor(p); % runs on all channels including the 'bad' ones
-% NLG_Filter_Channel(p);
+NLG_filter_CSC(p); % runs on all channels including the 'bad' ones
 
 % 3 Clean CSC Artifacts epochs
-% Nlg_clean_artifacts_CSC_parfor(p); % runs on all channels including the 'bad' ones
+NLG_clean_artifacts(p); % runs on all channels including the 'bad' ones
 
 % 4 Detect spikes from CSC
-% Nlg_Flight_detect_spikes_CSC_parfor(p); %CSC artifacts are removed from the neural data based on 'good' channels only
 NLG_detect_spikes(p);
 
 % 5 Sync Nlx2Nlg by TTLs

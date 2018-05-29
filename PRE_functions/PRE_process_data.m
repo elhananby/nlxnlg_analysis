@@ -18,7 +18,7 @@ dbstop if error;
 %% input processing
 switch nargin
     case 0 % if no variables
-        excel_sheet = 'D:\Scripts\nlx_analysis\inclusion_list_sessions.xlsx';
+        excel_sheet = 'D:\Scripts\nlxnlg_analysis\inclusion_list_sessions.xlsx';
         T_temp = readtable(excel_sheet, 'Sheet', 1);
         rows = 1:height(T_temp);
         
@@ -26,7 +26,7 @@ switch nargin
         if ~isempty(varargin{1})
             excel_sheet = varargin{1};
         else
-            excel_sheet = 'D:\Scripts\nlx_analysis\inclusion_list_sessions.xlsx';
+            excel_sheet = 'D:\Scripts\nlxnlg_analysis\inclusion_list_sessions.xlsx';
         end
         T_temp = readtable(excel_sheet, 'Sheet', 1);
         rows = 1:height(T_temp);
@@ -35,7 +35,7 @@ switch nargin
         if ~isempty(varargin{1})
             excel_sheet = varargin{1};
         else
-            excel_sheet = 'D:\Scripts\nlx_analysis\inclusion_list_sessions.xlsx';
+            excel_sheet = 'D:\Scripts\nlxnlg_analysis\inclusion_list_sessions.xlsx';
         end
         
         if ~isempty(varargin{2})

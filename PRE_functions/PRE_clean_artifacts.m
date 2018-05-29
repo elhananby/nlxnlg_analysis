@@ -243,7 +243,7 @@ for ii_file = files_interesting % Loop over the "interesting" files only
     
     filename_PARAMS_out = fullfile(datadir_out, '\params_clean_artifacts.mat');
     
-    load('D:\Scripts\nlx_analysis\library_of_acceptable_spike_shapes.mat')
+    load('D:\Scripts\nlxnlg_analysis\library_of_acceptable_spike_shapes.mat')
     
     functional_tetrode_channels = p.active_channels(TT_index,:); % '0' = dys-functional channel, '1' otherwise (this variable will be stored, but will NOT affect the output Ntt file)
     save(filename_PARAMS_out, 'coincidence_window' , 'r_threshold' , 'functional_tetrode_channels' , 'library_of_acceptable_spike_shapes')

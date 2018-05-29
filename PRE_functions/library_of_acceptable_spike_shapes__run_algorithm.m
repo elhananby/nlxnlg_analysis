@@ -28,7 +28,7 @@ function  [ vector_of_sccepted_spikes  vector_of_max_r_values ] = ...
 %        the spikes in the acceptable spikes library).
 
 
-load('D:\Scripts\nlx_analysis\library_of_acceptable_spike_shapes.mat'); % Load the library of acceptable spike shapes; 
+load('D:\Scripts\nlxnlg_analysis\library_of_acceptable_spike_shapes.mat'); % Load the library of acceptable spike shapes; 
                                % the varaible there should have the name 'library_of_acceptable_spike_shapes'.
 
 vector_of_sccepted_spikes = zeros( 1, size(Samples,3) ) + NaN ; % Initialize
