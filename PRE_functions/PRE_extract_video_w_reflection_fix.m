@@ -24,7 +24,7 @@ datadir_out = p.datadir_out;
 
 % enumerate over sessions
 
-t_throw_away_data = p.throw_away_times * 1e6;
+t_throw_away_data = p.throw_away_times;% * 1e6;
 
 filename_OUT = fullfile(p.path_dataout, datadir_out,...
     sprintf('VT_extracted_quail%d_day%d.mat', p.animal, p.day));

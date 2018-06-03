@@ -1,6 +1,6 @@
 function p = NLG_PRE_process_data(p)
 global useGPU;
-useGPU = 1;
+useGPU = 0;
 
 % 1  convert to CSC
 p = NLG_PRE_Nlg2Nlx(p);

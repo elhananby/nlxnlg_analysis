@@ -140,7 +140,12 @@ for nrec = 1:nrecs
             s.end_time = s.end_time + polyval(p.nlg.align_timestamps.p, s.end_time, p.nlg.align_timestamps.S, p.nlg.align_timestamps.mu);
 %             s.start_time = polyval(p.nlg.polyfit_Nlx2Nlg_microsec, s.start_time, [], p.nlg.muNlx2Nlg);
 %             s.end_time = polyval(p.nlg.polyfit_Nlx2Nlg_microsec, s.end_time, [], p.nlg.muNlx2Nlg);
+
             p.S(nses) = s;
+        end
+        
+        if any(p.throw_away_times)
+            p.throw_away_times =  p.throw_away_times + polyval(p.nlg.align_timestamps.p, p.throw_away_times, p.nlg.align_timestamps.S, p.nlg.align_timestamps.mu);
         end
     end
     

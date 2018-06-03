@@ -97,7 +97,7 @@ for ii_exp = 1:length(P)
                 excel_line = table2cell(struct2table(c)); % create line to append to excel file
                 
                 %% interpolate spikes
-                c = interp_spikes(c, Timestamps, CellNumbers, ii_cell, vt);
+                c = interp_spikes(c, Timestamps, CellNumbers, ii_cell, vt, p);
                 
                 % get only current session video info
                 cVt = session_video(sessionStartTime, sessionEndTime, vt);
@@ -168,7 +168,7 @@ end % experiment
 
 end
 
-function c = interp_spikes(c, ts, cn, cell, vt)
+function c = interp_spikes(c, ts, cn, cell, vt, p)
 %% INTERPSPIKES interpolates spike values
 %   c - cell structure to update
 %   ts - spikes timestamps
@@ -177,6 +177,11 @@ function c = interp_spikes(c, ts, cn, cell, vt)
 %   vt - video data
 
 c.timestamps = ts(cn == cell)';
+
+if any(p.throw_away_times)
+    c.timestamps = c.timestamps(c.timestamps < p.throw_away_times(1) | c.timestamps > p.throw_away_times(2));
+end
+
 c.posx       = interp1(vt.timestamps, vt.posx, c.timestamps);
 c.posx2      = interp1(vt.timestamps, vt.posx2, c.timestamps);
 c.posy       = interp1(vt.timestamps, vt.posy, c.timestamps);

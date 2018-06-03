@@ -1,4 +1,5 @@
 function NLG_clean_artifacts(p)
+global useGPU;
 warning('off','all')
 %-----------------------------------------------------------------------
 % PARAMETERS:
@@ -39,12 +40,15 @@ for ii_channel = 1:16 % temporary
     [Timestamps, Samples] = Nlx2MatCSC( filename_CSC_Filtered_in, [1 0 0 0 1], 0, 1, []);
     
     % artifact cleaning
-    spreadSamples = abs(Samples(:));
+%     if useGPU == 1
+%         spreadSamples = gpuArray(abs(Samples(:)));
+%     else
+        spreadSamples = abs(Samples(:));
+%     end
     
     [~, locs, w, ~] = findpeaks(spreadSamples,...
         'MinPeakHeight', 500,...
         'WidthReference', 'halfprom');
-    peakseek
     
     for ii_locs = 1:length(locs)
         idxToClean = locs(ii_locs) - ceil(w(ii_locs)*2) : locs(ii_locs) + ceil(w(ii_locs)*2);

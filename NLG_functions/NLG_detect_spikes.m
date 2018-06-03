@@ -11,9 +11,9 @@ else
 end
 
 for iiTetrode = p.TT
-    outFile = fullfile(p.path_dataout, p.datadir_out, sprintf('TT%i.mat', iiTetrode));
-    if exist(outFile, 'file')
-        continue;
+    outFile = fullfile(p.path_dataout, p.datadir_out, sprintf('TT%i', iiTetrode));
+    if exist([outFile '.ntt'], 'file')
+        return;
     end
     
     fprintf('\nProcessing Tetrode %i', iiTetrode);
