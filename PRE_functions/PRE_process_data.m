@@ -107,12 +107,6 @@ for nrec = 1:nrecs
         end
     end
     
-    % gets the following parameters:
-    % start_behavior  - pointer to start of behavior in event list
-    % end_behavior    - pointer to end of behavior in event list
-    % event_list      - event list itself
-    % time_stamps     - time stamps of each event in event list
-    
     p = PRE_get_session_times(p);
     
     if strcmp(p.nlgnlx, 'nlg')
@@ -132,23 +126,7 @@ for nrec = 1:nrecs
     
     %% extract data from video
     p = PRE_extract_video_w_reflection_fix(p);
-    
-    if strcmp(p.nlgnlx, 'nlg')
-        for nses = 1:nsessions
-            s = p.S(nses);
-            s.start_time = s.start_time + polyval(p.nlg.align_timestamps.p, s.start_time, p.nlg.align_timestamps.S, p.nlg.align_timestamps.mu);
-            s.end_time = s.end_time + polyval(p.nlg.align_timestamps.p, s.end_time, p.nlg.align_timestamps.S, p.nlg.align_timestamps.mu);
-%             s.start_time = polyval(p.nlg.polyfit_Nlx2Nlg_microsec, s.start_time, [], p.nlg.muNlx2Nlg);
-%             s.end_time = polyval(p.nlg.polyfit_Nlx2Nlg_microsec, s.end_time, [], p.nlg.muNlx2Nlg);
 
-            p.S(nses) = s;
-        end
-        
-        if any(p.throw_away_times)
-            p.throw_away_times =  p.throw_away_times + polyval(p.nlg.align_timestamps.p, p.throw_away_times, p.nlg.align_timestamps.S, p.nlg.align_timestamps.mu);
-        end
-    end
-    
     P_new(nrec) = p;
     
 end % loops on excel records

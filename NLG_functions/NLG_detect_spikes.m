@@ -227,7 +227,9 @@ for iiTetrode = p.TT
     Samples = spikesToSave{iiTetrode};
     save(outFile, 'Timestamps', 'Samples');
     
-    gpuDevice(1); % flush GPU memroy
+    if useGPU == 1
+        gpuDevice(1); % flush GPU memroy
+    end
     clearvars -except timestampsToSave spikesToSave p iiTetrode channelMatrix channelIdx useGPU
 end
 

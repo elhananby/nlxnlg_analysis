@@ -4,13 +4,13 @@ dbstop if error
 
 %% PARAMETERS:
 Filter__N_order = 300 ; %  Same as we use for filtering ripples
-Filter_FreqsHz = [600 6000]; % Filter for spikes
+Filter_FreqsHz = [600, 6000]; % Filter for spikes
 CSC_Sampling_Rate_Hz = p.nlg.fs;
 Recording_directory_general = fullfile(p.path_dataout, p.datadir_out, 'nlx_data');
 
 %% Define filter
-Wn = Filter_FreqsHz / ( CSC_Sampling_Rate_Hz / 2); % Passband, Hz (Normalized Wn to half the sampling rate)
-win_filter = fir1( Filter__N_order, Wn, 'bandpass' ); % Filter parameters are defined above
+% Wn = Filter_FreqsHz / ( CSC_Sampling_Rate_Hz / 2); % Passband, Hz (Normalized Wn to half the sampling rate)
+% win_filter = fir1( Filter__N_order, Wn, 'bandpass' ); % Filter parameters are defined above
 
 %% Extract data for each Tetrode
 active_channels = find(p.active_channels == 1);
@@ -33,9 +33,25 @@ for ii_channel = 1:length(active_channels)
 
     Samples_to_filter = Samples(:) - mean(Samples(:));
     
-    Samples_filtered = FiltFiltM(win_filter, 1, Samples_to_filter);
+%     Samples_filtered = FiltFiltM(win_filter, 1, Samples_to_filter);
+    if useGPU == 1
+        Samples_to_filter = gpuArray(Samples_to_filter);
+    end
+    
+    [b1, a1] = butter(3, (Filter_FreqsHz./CSC_Sampling_Rate_Hz).*2, 'bandpass');
+    
+    Samples_filtered = filter(b1, a1, Samples_to_filter);
+    Samples_filtered = fliplr(Samples_filtered);
+    
+    Samples_filtered = filter(b1, a1, Samples_to_filter);
+    Samples_filtered = fliplr(Samples_filtered);
     
     block_size = 512;
+    
+    if useGPU == 1
+        Samples_filtered = gather(Samples_filtered);
+    end
+    
     Samples_save = reshape(Samples_filtered, block_size, length(Samples_filtered)/block_size);
     
     % save ncs

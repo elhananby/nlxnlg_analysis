@@ -6,6 +6,7 @@ function cell_files_to_load = PRE_create_cells_list(excel_file, P)
 %   OUTPUT: updated excel file
 %           exp_files_to_load - list of experiment files to load, which
 %           contain all the cell data needed for analysis
+dbstop if error
 
 T = readtable(excel_file,...
     'Sheet', 2,...
@@ -27,7 +28,7 @@ else
 end
 
 cell_files_to_load = {};
-
+line = 0;
 %% loop over experiments
 for ii_exp = 1:length(P)
     
@@ -67,21 +68,26 @@ for ii_exp = 1:length(P)
             
             % if file not spike sorted
             if all(CellNumbers == 0)
-                fprintf('No cells in file %s.\nPerform spike sorting and then press any key to continue\n', Filename);
-                pause;
+                line = sprintf('No cells in %s.\nIs this intentional? Y/N [Y]. ', Filename);
+                str = input(line, 's');                
+                if isempty(str), str = 'y'; end
+                fprintf(repmat('\b', 1, length(line)));
+                if strcmpi(str, 'Y'), continue;
+                elseif strcmpi(str, 'N'), fprintf('Perform Spike sorting and then press any key to continue'); pause; end
             end
             
             % if the cluster size = all spikes, this is a marker for a
             % spikeless file and we can continue
-            if length(find(CellNumbers == 1)) == length(CellNumbers)
-                continue;
-            end
+%             if length(find(CellNumbers == 1)) == length(CellNumbers)
+%                 continue;
+%             end
             
             cn = unique(CellNumbers(CellNumbers ~= 0)); % find all non-zero cell numbers
             
             %% loop over cells in CellNumbers
             for ii_cell = cn
-                
+                fprintf(repmat('\b',1,line));
+                line = fprintf('%i - animal %i%s, Day %i, TT%iC%i, %.2f', curr_cell, p.animal, p.animal_name, p.day, ii_tetrode, ii_cell, (curr_cell-height(T))*100/length(P));
                 % create new cells line
                 c = struct;
                 
@@ -121,9 +127,9 @@ for ii_exp = 1:length(P)
                     ii_cell);
                 
                 % create filename structure
-                outfile_name = sprintf('%i_%i-%s_%s_%d_Exp%i_Session%i_TT%i_Cell%i.mat',...
+                outfile_name = sprintf('%i_%i-%s_%s_Day%d_Exp%i_Session%i_TT%i_Cell%i.mat',...
                     c.cell_number, p.animal, p.animal_name, p.nlgnlx, p.day, p.experiment, ii_nses, ii_tetrode, ii_cell);
-                
+    
                 outfile_FULL = fullfile(p.path_dataout,...
                     'Cells',...
                     sprintf('%i_%s', p.animal, p.animal_name),...
@@ -158,6 +164,7 @@ for ii_exp = 1:length(P)
                 curr_cell = curr_cell + 1; % for excel file
                 
                 cell_files_to_load{end+1} = outfile_FULL;
+
             end % cell
             
         end % tetrode
@@ -169,6 +176,7 @@ end % experiment
 end
 
 function c = interp_spikes(c, ts, cn, cell, vt, p)
+dbstop if error
 %% INTERPSPIKES interpolates spike values
 %   c - cell structure to update
 %   ts - spikes timestamps
@@ -176,10 +184,17 @@ function c = interp_spikes(c, ts, cn, cell, vt, p)
 %   cell - current processed cell
 %   vt - video data
 
-c.timestamps = ts(cn == cell)';
+if strcmpi(p.nlgnlx, 'nlg')
+    c.timestamps = ts(cn == cell)' + polyval(p.nlg.align_timestamps_nlg2nlx.p,...
+        ts(cn == cell)',...
+        p.nlg.align_timestamps_nlg2nlx.S,...
+        p.nlg.align_timestamps_nlg2nlx.mu);
+else, c.timestamps = ts(cn == cell)';
+end
 
 if any(p.throw_away_times)
-    c.timestamps = c.timestamps(c.timestamps < p.throw_away_times(1) | c.timestamps > p.throw_away_times(2));
+    idxToRemove = PRE_throw_away_times(c.timestamps, p.throw_away_times);
+    c.timestamps(idxToRemove) = [];
 end
 
 c.posx       = interp1(vt.timestamps, vt.posx, c.timestamps);

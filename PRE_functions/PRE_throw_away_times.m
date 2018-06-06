@@ -1,7 +1,7 @@
 function idx_throw = PRE_throw_away_times(t, throw)
 %%PRE_THROW_AWAY_TIMES gives a (logical) vector of indices to throw away
-throw = throw .* 1e6; % convert to microseconds
-[m, n] = size(throw);
+% throw = throw .* 1e6; % convert to microseconds
+[m, ~] = size(throw);
 idx_throw = false(1, length(t))';
 
 for i_m = 1:m % go over defined timestamps

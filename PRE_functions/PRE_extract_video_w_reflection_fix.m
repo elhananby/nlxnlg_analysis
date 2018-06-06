@@ -183,6 +183,8 @@ y1_interp = y1_interp(trailing_nans);
 x2_interp = x2_interp(trailing_nans);
 y2_interp = y2_interp(trailing_nans);
 
+Timestamps = Timestamps(trailing_nans);
+
 % Assign Left/Right assignments to the colors of the targets:
 % posx, posy - left
 % posx2, posy2 - right
@@ -192,8 +194,7 @@ if strcmpi( color_right_LED, 'Red' )
     
 elseif strcmpi( color_right_LED, 'Green' )
     posx = x2_interp./px2cm; posy = y2_interp./px2cm;
-    posx2 = x1_interp./px2cm; posy2 = y1_interp./px2cm;
-    
+    posx2 = x1_interp./px2cm; posy2 = y1_interp./px2cm;  
 end
 
 % calculate center-of-mass and scale to zero
@@ -294,15 +295,6 @@ VT_Parameters.num_lightsticks_Arena_Marking = num_lightsticks_Arena_Marking ;
 VT_Parameters.smoothing_parameter_for_velocity = smoothing_parameter_for_velocity ;
 VT_Parameters.path_datain = p.path_datain;
 VT_Parameters.path_dataout = p.path_dataout;
-
-if strcmp(p.nlgnlx, 'nlg')
-    raw.timestamps_nlx = raw.timestamps;
-    raw.timestamps = raw.timestamps + polyval(p.nlg.align_timestamps.p, raw.timestamps, p.nlg.align_timestamps.S, p.nlg.align_timestamps.mu);
-%     raw.timestamps = polyval(p.nlg.polyfit_Nlx2Nlg_microsec, raw.timestamps, [], p.nlg.muNlx2Nlg);
-    vt.timestamps_nlx = vt.timestamps;
-    vt.timestamps = vt.timestamps + polyval(p.nlg.align_timestamps.p, vt.timestamps, p.nlg.align_timestamps.S, p.nlg.align_timestamps.mu);
-%     vt.timestamps = polyval(p.nlg.polyfit_Nlx2Nlg_microsec, vt.timestamps, [], p.nlg.muNlx2Nlg);
-end
 
 p.VT_file = filename_OUT; % save only the file to load rather then all of the data
 save(filename_OUT,...

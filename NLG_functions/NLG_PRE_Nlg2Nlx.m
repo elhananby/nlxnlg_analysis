@@ -10,7 +10,7 @@ DATA_file_prefix = 'NEUR';
 zero_DC_level_bit = 2048;
 is_invert_data = true;
 is_remove_DC = true;
-is_remove_flash_write_artifact = true;
+is_remove_flash_write_artifact = false;
 use_clock_diff_correction = true;
 use_post_rec_ref_channel = false; % use this if you recorded with GND as ref channel
 %post_rec_ref_channel = 10; % If the above is true - choose the channel you want to substract from all the other channels
@@ -98,7 +98,7 @@ if use_clock_diff_correction
         CD_timestamps(end+1) = events_TS(PC_gen_events_IX(ii_event));
     end
     
-    CD_values = CD_values.*1e6; % change from sec to usec
+    CD_values = CD_values.*1e1; % change from sec to usec
     CD_timestamps(find(CD_values>(mean(CD_values)+2*std(CD_values))))=[];
     CD_values(find(CD_values>(mean(CD_values)+2*std(CD_values))))=[];
     
@@ -163,6 +163,8 @@ header = strrep(header,'-SamplingFrequency', ['-SamplingFrequency ' char(vpa(fs)
 
 filesToOpen = subdir(fullfile(Nlg_InDir, '*.DAT'));
 
+% if length(FileStarted_TS) > length(filesToOpen), FileStarted_TS = FileStarted_TS(1:length(filesToOpen)); end
+
 for ii_file_start_entry = 1:length(FileStarted_TS)
     
     temp = FileStarted_details{ii_file_start_entry};
@@ -181,7 +183,7 @@ for ii_file_start_entry = 1:length(FileStarted_TS)
         end
     end
     
-    count=0;
+    count = 0;
     
     % remove repetative flash write artifact
     if is_remove_flash_write_artifact
