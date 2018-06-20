@@ -49,7 +49,7 @@ for ii_cell = cell_list
     [rSpikeTrain, lagsSpikeTrain] = xcorr(c.spikeTrain, 500);
     
     % border score
-    borderScore = calculate_border_score(posRates);
+    borderScore = calculate_border_score(posRates);   
     
     %% plot all the basic stuff
     count = 1;
@@ -87,6 +87,14 @@ for ii_cell = cell_list
     saveas(fig, fullfile(filepath_fig, [filename_fig '.png']), 'png');
     close all;
     fprintf('\t\tSaved %s\n', fullfile(filepath_fig, filename_fig));
+    
+%     if (length(c.timestamps) >= 300 && ... % more than 300 spikes
+%             (s.end_time - s.start_time)*1e-6 >= 10 && ... % longer than 10 minutes
+%             hdScore >= hdThr) %% significance shuffling
+%         hdFile = matfile(fullfile(p.path_dataout, 'hdCells.mat'), 'Writable', true);
+%         hdFile.hdCells = unique([hdFile.hdCells c.cell_number]);                           
+%     end
+%     
 end % cells
 
 end % functions

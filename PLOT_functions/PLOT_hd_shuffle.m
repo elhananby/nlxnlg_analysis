@@ -20,7 +20,7 @@ histogram(shuffledHdScore, 40);
 hold on;
 line([hdThr, hdThr], ylim, 'LineWidth', 1, 'Color', 'r', 'LineStyle', '--');
 hdScore = circ_r(hdBins', hdRates');
-line([hdScore hdScore], ylim, 'LineWidth', 2, 'Color', 'k', 'LineStyle', '-');
+line([hdScore hdScore], ylim, 'LineWidth', 1, 'Color', 'g', 'LineStyle', '-');
 
 title('Shuffled HD Scores');
 xlabel('HD Score');

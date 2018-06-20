@@ -1,58 +1,23 @@
-clearvars
-close all
-dbstop if error
+dataFolder = fullfile('D:\', 'new_exp_data', 'Cells', '*.mat');
+files = subdir(dataFolder);
 
-files = subdir(fullfile('D:\', 'experiment_data', 'cells', '*.mat'));
-files = cellstr(char(files.name));
-
-cells = cell(length(files), 7);
-% COLUMNS
-%   1 - cell num, 2 - time, 3 - # spikes, 4 - lratio, 5 - isolationDist,
-%   6 - behavior rayliehg, 7 - % ISI < 2ms
-
-for ii_file = files'
-    file = ii_file{1};
+for iiFile = 1:length(files)
+    fileToLoad = files(iiFile).name;
+    load(fileToLoad);
     
-    disp(file);
-    load(file);
+    vt = cVt;
+    clearvars cVt;
     
-    t = (C.S.pos.t(end) - C.S.pos.t(1))/60; % time in minutes
-    ns = length(C.S.spk.t); % number of spikes
-    lRatio = C.S.cluster_quality.Lratio; % L-Ratio
-    isolationDist = C.S.cluster_quality.IsolationDist; % Isolation-distnace
-    countRs = rayscore(C); % rayleigh score of BEHAVIOR (we want it to be as low as possible)
-    ISI = diff(C.S.spk.Timestamps); % ISI
-    perc_ISI_less_2ms = nnz(ISI .* 1e-3 <= 2)/length(ISI); % find ISI less than 2 ms
+    vtKeepIdx = index_to_keep(vt, p, s);
+    cKeepIdx = index_to_keep(c, p, s);
     
-    [~, name, ~] = fileparts(file);
-    number = regexp(name, '(\d+)_quail', 'tokens');
-    number = str2double(number{1});
+    [posOccupancy, posSpikes, posRates, posRatesSmooth] = calculate_rate_map(c, vt, cKeepIdx, vtKeepIdx);
     
-    idx = find(ismember(files, file));
-    cells{idx, 1} = number;
-    cells{idx, 2} = t;
-    cells{idx, 3} = ns;
-    cells{idx, 4} = lRatio;
-    cells{idx, 5} = isolationDist;
-    cells{idx, 6} = countRs;
-    cells{idx, 7} = perc_ISI_less_2ms;
+    [hdOccupancy, hdSpikes, hdRates, hdScore] = calculate_hd_map(c, vt, cKeepIdx, vtKeepIdx);
     
-end
+    [speedOccupancy, speedSpikes, speedRates] = calculate_speed_map(c, vt, cKeepIdx, vtKeepIdx);
+    
+    spikeISI = diff(c.timestamps.*1e-6);
 
-function rs = rayscore(C)
-nHdBins = length(C.S.HD.time_phi);
-hdBins = (0:2*pi/nHdBins:2*pi-2*pi/nHdBins)';
-
-hdCounts = wrapTo2Pi(deg2rad(C.S.HD.time_phi))';
-% convert coordinates from polar to rectangular form
-x = hdCounts .* cos(hdBins);
-y = hdCounts .* sin(hdBins);
-sumLength = sum(sqrt(x.^2 + y.^2));
-
-% computes sum vector
-rx = sum(x);
-ry = sum(y);
-rLength = sqrt(rx^2 + ry^2);
-
-rs = rLength / sumLength;
-end
+    [rSpikeTrain, lagsSpikeTrain] = xcorr(c.spikeTrain, 500);
+end 

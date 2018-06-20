@@ -31,7 +31,7 @@ cell_files_to_load = {};
 line = 0;
 %% loop over experiments
 for ii_exp = 1:length(P)
-    
+    fprintf('Exp %i %.2f%% - ', ii_exp, ii_exp*100/length(P));
     % initiate temporary p structure
     p = P(ii_exp);
     
@@ -68,26 +68,28 @@ for ii_exp = 1:length(P)
             
             % if file not spike sorted
             if all(CellNumbers == 0)
-                line = sprintf('No cells in %s.\nIs this intentional? Y/N [Y]. ', Filename);
-                str = input(line, 's');                
-                if isempty(str), str = 'y'; end
-                fprintf(repmat('\b', 1, length(line)));
-                if strcmpi(str, 'Y'), continue;
-                elseif strcmpi(str, 'N'), fprintf('Perform Spike sorting and then press any key to continue'); pause; end
+                continue;
+%                 line = sprintf('No cells in %s.\nIs this intentional? Y/N [Y]. ', Filename);
+%                 str = input(line, 's');                
+%                 if isempty(str), str = 'y'; end
+%                 fprintf(repmat('\b', 1, length(line)));
+%                 if strcmpi(str, 'Y'), continue;
+%                 elseif strcmpi(str, 'N'), fprintf('Perform Spike sorting and then press any key to continue'); pause; end
             end
             
             % if the cluster size = all spikes, this is a marker for a
             % spikeless file and we can continue
-%             if length(find(CellNumbers == 1)) == length(CellNumbers)
-%                 continue;
-%             end
+            if length(find(CellNumbers == 1)) == length(CellNumbers)
+                continue;
+            end
             
             cn = unique(CellNumbers(CellNumbers ~= 0)); % find all non-zero cell numbers
             
             %% loop over cells in CellNumbers
             for ii_cell = cn
-                fprintf(repmat('\b',1,line));
-                line = fprintf('%i - animal %i%s, Day %i, TT%iC%i, %.2f', curr_cell, p.animal, p.animal_name, p.day, ii_tetrode, ii_cell, (curr_cell-height(T))*100/length(P));
+%                 fprintf(repmat('\b',1,line));
+                fprintf('%i - animal %i%s, Day %i, TT%iC%i\n',...
+                    curr_cell, p.animal, p.animal_name, p.day, ii_tetrode, ii_cell);
                 % create new cells line
                 c = struct;
                 
