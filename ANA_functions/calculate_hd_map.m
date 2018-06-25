@@ -4,7 +4,7 @@ hdBins = -pi : 2*pi/nHdBins : pi;
 
 hdOccupancy = histcounts(vt.poshd(vtKeepIdx), hdBins);
 hdSpikes = histcounts(c.poshd(cKeepIdx), hdBins);
-hdRates = hdSpikes ./ (hdOccupancy .* (dt * 1e-6));
+hdRates = hdSpikes ./ (hdOccupancy .* dt);
 
 % convert coordinates from polar to rectangular form
 hdBins = -pi : 2*pi/nHdBins : pi - pi/nHdBins;
