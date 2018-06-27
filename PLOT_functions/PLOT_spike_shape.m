@@ -3,13 +3,14 @@ subplot(m, n, count);
 
 % find channel with maximum value
 [~, maxChan] = max(max(mean(c.spikeShape, 3)));
+otherChannels = setdiff([1:4], maxChan);
 
-% plot all spike lines
-plot(squeeze(c.spikeShape(:, maxChan, :)), 'Color', [220 220 220 50]./255, 'LineWidth', .5);
-hold on;
-
-% plot only mean of spike
-plot(mean(squeeze(c.spikeShape(:, maxChan, :)), 2), 'k', 'LineWidth', 1);
+% plot only mean of spikes
+plot(mean(squeeze(c.spikeShape(:, maxChan, :)), 2));
+hold on
+for jjChan = otherChannels
+    plot(mean(squeeze(c.spikeShape(:, jjChan, :)), 2));
+end
 
 xlabel('Time (ms)');
 ylabel('Voltage (uV)');

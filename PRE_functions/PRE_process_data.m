@@ -140,12 +140,7 @@ pause();
 cells = PRE_create_cells_list(excel_sheet, P);
 
 %% do a very basic analysis on the data
-% if ~isempty(cells)
-%     ANA_basic_analysis(cells);
-% else
-%     disp('No cells found');
-% end
-
+ANA_basic_analysis(cells);
 
 fprintf('finished complete run of PRE_process_data');
 end

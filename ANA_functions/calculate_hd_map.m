@@ -1,5 +1,6 @@
 function [hdOccupancy, hdSpikes, hdRates, hdScore] = calculate_hd_map(c, vt, cKeepIdx, vtKeepIdx)
 global nHdBins dt;
+
 hdBins = -pi : 2*pi/nHdBins : pi;
 
 hdOccupancy = histcounts(vt.poshd(vtKeepIdx), hdBins);

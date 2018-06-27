@@ -15,10 +15,11 @@ for ii_cell = cell_list
         p.animal, p.animal_name, p.day, p.experiment, c.session, c.TT, c.cell_id);
     
     % correct struct names for analysis
-    c = c;
-    vt = cVt;
+    cMetaData = c;
+    c = c.cPos;
+    vt = c.vt;
     
-    p = p;
+    p = c.p;
     s = p.S(c.session);
     
     boxSize = p.arena_width_east_to_west;
@@ -46,10 +47,10 @@ for ii_cell = cell_list
     spikeISI = diff(c.timestamps.*1e-6); % in seconds
     
     % xcorr
-    [rSpikeTrain, lagsSpikeTrain] = xcorr(c.spikeTrain, 500);
+%     [rSpikeTrain, lagsSpikeTrain] = xcorr(c.spikeTrain, 500);
     
     % border score
-    borderScore = calculate_border_score(posRates);   
+    [borderScore, borderDir] = calculate_border_score(posRates);   
     
     %% plot all the basic stuff
     count = 1;
@@ -72,16 +73,16 @@ for ii_cell = cell_list
         p.animal,...
         p.day,...
         p.experiment,...
-        c.session,...
-        p.S(c.session).session,...
-        c.TT,...
-        c.cell_id));
+        cMetaData.session,...
+        p.S(cMetaData.session).session,...
+        cMetaData.TT,...
+        cMetaData.cell_id));
     
     % save
     [filepath_fig, ~, ~] = fileparts(ii_cell{1});
 
     filename_fig = sprintf('%i_%i-%s_%s_Day%d_Exp%i_Session%i_TT%i_Cell%i',...
-        c.cell_number, p.animal, p.animal_name, p.nlgnlx, p.day, p.experiment, c.session, c.TT, c.cell_id);
+        cMetaData.cell_number, p.animal, p.animal_name, p.nlgnlx, p.day, p.experiment, cMetaData.session, cMetaData.TT, cMetaData.cell_id);
     
     savefig(fig, fullfile(filepath_fig, filename_fig), 'compact');
     saveas(fig, fullfile(filepath_fig, [filename_fig '.png']), 'png');

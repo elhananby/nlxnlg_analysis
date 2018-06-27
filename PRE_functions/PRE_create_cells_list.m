@@ -43,6 +43,7 @@ for ii_exp = 1:length(P)
     vt_file_search = fullfile(p.path_dataout, p.datadir_out, 'VT*.mat');
     vt_files_to_load = subdir(vt_file_search);
     load(vt_files_to_load.name, 'vt');
+    orgVt = vt;
     
     p.vtfile = vt_files_to_load.name;
     
@@ -64,7 +65,7 @@ for ii_exp = 1:length(P)
                 ExtractionModeVector = [sessionStartTime sessionEndTime]; % load only the session time we want
             end
             
-            [Timestamps, CellNumbers, Samples] = Nlx2MatSpike( Filename, [1 0 1 0 1], 0, ExtractionMode, ExtractionModeVector); % load current spike file
+            [Timestamps, CellNumbers, Samples, Header] = Nlx2MatSpike( Filename, [1 0 1 0 1], 1, ExtractionMode, ExtractionModeVector); % load current spike file
             
             % if file not spike sorted
             if all(CellNumbers == 0)
@@ -84,6 +85,7 @@ for ii_exp = 1:length(P)
             end
             
             cn = unique(CellNumbers(CellNumbers ~= 0)); % find all non-zero cell numbers
+            ad2uv = header{}; % get ADC2uV values
             
             %% loop over cells in CellNumbers
             for ii_cell = cn
@@ -101,17 +103,18 @@ for ii_exp = 1:length(P)
                 c.session = ii_nses;
                 c.TT = ii_tetrode;
                 c.cell_id = ii_cell;
+                c.p = p;
                 
                 excel_line = table2cell(struct2table(c)); % create line to append to excel file
                 
                 %% interpolate spikes
-                c = interp_spikes(c, Timestamps, CellNumbers, ii_cell, vt, p);
+                c.spikePos = interp_spikes(c, Timestamps, CellNumbers, ii_cell, orgVt, p);
                 
                 % get only current session video info
-                cVt = session_video(sessionStartTime, sessionEndTime, vt);
+                c.sessionPos = session_video(sessionStartTime, sessionEndTime, orgVt);
                 
                 % claculate spike train
-                c = spike_train(c, Timestamps, CellNumbers, ii_cell, vt);
+%                 c = spike_train(c, Timestamps, CellNumbers, ii_cell, vt);
                 
                 % get spike shape
                 c.spikeShape = Samples(:, :, CellNumbers == ii_cell);
@@ -152,14 +155,14 @@ for ii_exp = 1:length(P)
                 elseif ~exist(outfile_FULL, 'file') && any(strcmp(current_cell_string, existing_cells))
                     
                     % save file but don't update excel
-                    save(outfile_FULL,  'c', 'cVt' , 'p');
+                    save(outfile_FULL,  'c');
                     
                     % no file AND no excel
                 elseif ~exist(outfile_FULL, 'file') && ~any(strcmp(current_cell_string, existing_cells))
                     
                     % save file and update excel
                     xlswrite(excel_file, excel_line, 'Cells', sprintf('A%i', curr_cell+1));
-                    save(outfile_FULL,  'c', 'cVt' , 'p');
+                    save(outfile_FULL,  'c');
                     
                 end
                 
