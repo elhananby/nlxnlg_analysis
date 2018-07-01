@@ -1,0 +1,2 @@
+[submodule "EXT_functions/subdir-pkg"]
+	url = https://github.com/kakearney/subdir-pkg
