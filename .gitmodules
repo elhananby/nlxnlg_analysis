@@ -1,2 +1,12 @@
-[submodule "EXT_functions/subdir-pkg"]
+[submodule "EXT_functions\\sc"]
+	path = EXT_functions\\sc
+	url = https://github.com/ojwoodford/sc
+[submodule "EXT_functions\\subdir-pkg"]
+	path = EXT_functions\\subdir-pkg
 	url = https://github.com/kakearney/subdir-pkg
+[submodule "EXT_functions\\circstat-matlab"]
+	path = EXT_functions\\circstat-matlab
+	url = https://github.com/circstat/circstat-matlab
+[submodule "EXT_functions\\export_fig"]
+	path = EXT_functions\\export_fig
+	url = https://github.com/altmany/export_fig
