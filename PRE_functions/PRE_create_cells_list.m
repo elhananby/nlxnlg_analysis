@@ -65,7 +65,7 @@ for ii_exp = 1:length(P)
                 ExtractionModeVector = [sessionStartTime sessionEndTime]; % load only the session time we want
             end
             
-            [Timestamps, CellNumbers, Samples, Header] = Nlx2MatSpike( Filename, [1 0 1 0 1], 1, ExtractionMode, ExtractionModeVector); % load current spike file
+            [Timestamps, CellNumbers, FD, Samples, Header] = Nlx2MatSpike( Filename, [1 0 1 1 1], 1, ExtractionMode, ExtractionModeVector); % load current spike file
             
             % if file not spike sorted
             if all(CellNumbers == 0)
@@ -106,6 +106,11 @@ for ii_exp = 1:length(P)
                 metaData.cell_id = ii_cell;  
                 
                 excel_line = table2cell(struct2table(metaData)); % create line to append to excel file
+                
+                %% cluster quality
+                ClusterSpikes = find(CellNumbers == ii_cell);
+                metaData.IsoDist = IsolationDistance(FD', ClusterSpikes);
+                metaData.Lratio = L_Ratio(FD', ClusterSpikes);
                 
                 %% interpolate spikes
                 spikePos = interp_spikes(Timestamps, CellNumbers, ii_cell, orgVt, p);
@@ -242,4 +247,75 @@ vt.poshd = vt.poshd(sIdx);
 vt.vx = vt.vx(sIdx);
 vt.vy = vt.vy(sIdx);
 vt.speed = vt.speed(sIdx);
+end
+
+function IsoDist = IsolationDistance(FD, ClusterSpikes)
+
+% IsoDist = IsolationDistance(FD, ClusterSpikes)
+%
+% Isolation Distance
+% Measure of cluster quality
+%
+% Inputs:   FD:           N by D array of feature vectors (N spikes, D dimensional feature space)
+%           ClusterSpikes: Index into FD which lists spikes from the cell whose quality is to be evaluated.
+%
+% Created by Ken Harris
+% 
+% Code by ADR 2012/12, from earlier versions
+
+[nSpikes, nCh] = size(FD);
+
+nClusterSpikes = length(ClusterSpikes);
+
+if nClusterSpikes > nSpikes/2
+    IsoDist = nan; % not enough out-of-cluster-spikes - IsoD undefined
+    return
+end
+
+InClu = ClusterSpikes;
+OutClu = setdiff(1:nSpikes, ClusterSpikes);
+
+%%%%%%%%%%% compute mahalanobis distances %%%%%%%%%%%%%%%%%%%%%
+m = mahal(FD, FD(ClusterSpikes,:));
+
+mNoise = m(OutClu); % mahal dist of all other spikes
+
+% calculate point where mD of other spikes = n of this cell
+sorted = sort(mNoise);
+IsoDist = sorted(nClusterSpikes);
+end
+
+function [output, m] = L_Ratio(FD, ClusterSpikes, NoiseSpikes)
+
+% output = L_Ratio(FD, ClusterSpikes)
+%
+% L-ratio
+% Measure of cluster quality
+%
+% Inputs:   FD:           N by D array of feature vectors (N spikes, D dimensional feature space)
+%           ClusterSpikes: Index into FD which lists spikes from the cell whose quality is to be evaluated.
+%
+% Output: a structure containing three components
+%           Lratio, L, df
+% ADR 2017-10-02 Added code to allow processing of NoiseSpikes
+
+% find # of spikes in this cluster
+[nSpikes, nD] = size(FD);
+
+nClusterSpikes = length(ClusterSpikes);
+
+% mark spikes which are not cluster members
+if nargin < 3
+    NoiseSpikes = setdiff(1:nSpikes, ClusterSpikes);
+end
+
+m = mahal(FD, FD(ClusterSpikes,:));
+df = size(FD,2);
+
+L = sum(1-chi2cdf(m(NoiseSpikes),df));
+Lratio = L/nClusterSpikes;
+
+output.L = L;
+output.Lratio = Lratio;
+output.df = nD;
 end

@@ -136,11 +136,32 @@ P = P_new;
 %% pause
 fprintf('Finished spike detection and video analysis,\nPerform spike sorting and press any key to continue\n');
 pause();
+
 %% read cells from sorted ntt file
 cells = PRE_create_cells_list(excel_sheet, P);
 
+%% find cells to load
+%  temporary thing
+cellsToProcess = subdir('D:\experiment_data\Cells\*.mat');
+idx = 1;
+cells = extractfield(cellsToProcess, 'name');
+
+% for iiCell = 1:length(cellsToProcess)
+%     load(cellsToProcess(iiCell).name);
+%     isoDist(iiCell) = metaData.IsoDist;
+%     lRatio(iiCell) = metaData.Lratio.Lratio;
+%     
+%     if metaData.IsoDist >= 10 &&...
+%             metaData.Lratio.Lratio <= 0.3 &&...
+%             (p.time_stamps(2) - p.time_stamps(1))*1e-6/60 >= 10 &&...
+%             length(spikePos.timestamps) >= 300
+%         cells{idx} = cellsToProcess(iiCell).name;
+%         idx = idx + 1;
+%     end
+% end
+
 %% do a very basic analysis on the data
-ANA_basic_analysis(cells);
+basic_analysis(cells);
 
 fprintf('finished complete run of PRE_process_data');
 end

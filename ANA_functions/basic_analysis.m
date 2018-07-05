@@ -1,4 +1,4 @@
-function ANA_basic_analysis(cell_list)
+function basic_analysis(cell_list)
 dbstop if error;
 close all; clc;
 
@@ -20,10 +20,10 @@ for ii_cell = cell_list
         p.animal, p.animal_name, p.day, p.experiment, metaData.session, metaData.TT, metaData.cell_id);
     
     boxSize = p.arena_width_east_to_west;
-    dt = mean(diff(vt.timestamps));
+    dt = mean(diff(vt.timestamps)) * 1e-6; % in seconds
     
-    fig = figure('Units', 'pixels',...
-        'Position', [0 0 1920 1080],...
+    fig = figure('Units', 'Normalized',...
+        'Position', [0 0 1 1],...
         'Visible', 'off');
     
     %% cleaning thresholds
@@ -41,13 +41,13 @@ for ii_cell = cell_list
     [speedOccupancy, speedSpikes, speedRates] = calculate_speed_map(c, vt, cKeepIdx, vtKeepIdx);
     
     % isi
-    spikeISI = diff(c.timestamps.*1e-6); % in seconds
+    spikeISI = diff(c.timestamps)*1e-6; % in seconds
     
     % xcorr
 %     [rSpikeTrain, lagsSpikeTrain] = xcorr(c.spikeTrain, 500);
     
-    % border score
-    [borderScore, borderDir] = calculate_border_score(posRates);   
+    % border curve
+    [borderIdx, borderCurve] = calculate_border_score(c);   
     
     %% plot all the basic stuff
     count = 1;
@@ -59,6 +59,7 @@ for ii_cell = cell_list
     PLOT_hd_time;
     PLOT_hd_polar;
     PLOT_hd_speed;
+    PLOT_hd_half;
     PLOT_hd_histogram;
     PLOT_hd_shuffle;
     PLOT_border_shuffle;

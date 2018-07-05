@@ -5,5 +5,5 @@ speedBins = linspace(min(vt.speed(vtKeepIdx)), max(vt.speed(vtKeepIdx)), nSpeedB
 speedOccupancy = histcounts(vt.speed(vtKeepIdx), speedBins);
 speedSpikes = histcounts(c.speed(cKeepIdx), speedBins);
 
-speedRates = speedSpikes./(speedOccupancy.*(dt*1e-6));
+speedRates = speedSpikes./(speedOccupancy.*dt);
 end

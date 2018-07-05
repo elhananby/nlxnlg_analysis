@@ -5,13 +5,14 @@ speedIdxSpk = c.speed <= 1;
 
 hdBins = -pi : 2*pi/nHdBins : pi;
 
-hdRatesSlow = histcounts(c.poshd(speedIdxSpk), hdBins) ./ (histcounts(vt.poshd(speedIdxPos), hdBins) .* (dt * 1e-6));
-hdRatesFast = histcounts(c.poshd(~speedIdxSpk), hdBins) ./ (histcounts(vt.poshd(~speedIdxPos), hdBins) .* (dt * 1e-6));
+hdRatesSlow = histcounts(c.poshd(speedIdxSpk), hdBins) ./ (histcounts(vt.poshd(speedIdxPos), hdBins) .* dt );
+hdRatesFast = histcounts(c.poshd(~speedIdxSpk), hdBins) ./ (histcounts(vt.poshd(~speedIdxPos), hdBins) .* dt);
 
 hdBins = linspace(-pi, pi, 60);
-polarplot(hdBins, smooth(hdRatesSlow));
+polarplot(hdBins, cconv(hdRatesSlow./max(hdRatesSlow), win, nHdBins));
 hold on
-polarplot(hdBins, smooth(hdRatesFast));
+polarplot(hdBins, cconv(hdRatesFast./max(hdRatesFast), win, nHdBins));
+
 legend('<= 1 cm/s', '> 1 cm/s', 'location', 'best');
 
 count = count + 1;

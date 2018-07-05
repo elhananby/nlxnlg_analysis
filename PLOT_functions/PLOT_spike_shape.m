@@ -14,6 +14,7 @@ end
 
 xlabel('Time (ms)');
 ylabel('Voltage (uV)');
+title(sprintf('\n Isolation Distance = %.2f \t Lratio = %.3f', metaData.IsoDist, metaData.Lratio.Lratio));
 box off;
 
 count = count + 1;

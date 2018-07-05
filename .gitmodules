@@ -12,3 +12,6 @@
 	url = https://github.com/altmany/export_fig
 [submodule "EXT_functions/circstat-matlab"]
 	url = https://github.com/circstat/circstat-matlab
+[submodule "EXT_functions\\boundedline-pkg"]
+	path = EXT_functions\\boundedline-pkg
+	url = https://github.com/kakearney/boundedline-pkg
