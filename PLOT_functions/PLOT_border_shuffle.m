@@ -13,7 +13,7 @@ for iiShuff = 1:1000
     shuffledCurves(:, iiShuff) = curve(borderIdx, :);
 end
 meanShuffleCurve = mean(shuffledCurves, 2);
-semShuffleCurve = std(shuffledCurves, 0, 2)./sqrt(size(shuffledCurves, 2));
+semShuffleCurve = std(shuffledCurves, 0, 2);
 
 distVec = 1:1:96;
 boundedline(distVec, borderCurve(borderIdx, :), 0, '-b', distVec, meanShuffleCurve, semShuffleCurve, '--r');
