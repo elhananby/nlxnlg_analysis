@@ -27,18 +27,19 @@ for ii_cell = cell_list
         'Visible', 'off');
     
     %% cleaning thresholds
-    vtKeepIdx = index_to_keep(vt, p, s);
-    cKeepIdx = index_to_keep(c, p, s);
+    % use structfun to apply indices for each array of struct
+    c = structfun(@(x) x(index_to_keep(c, p, s)), c, 'UniformOutput', false); 
+    vt = structfun(@(x) x(index_to_keep(vt, p, s)), vt, 'UniformOutput', false);
     
     %% calculate basic stuff
     % rate map
-    [posOccupancy, posSpikes, posRates, posRatesSmooth] = calculate_rate_map(c, vt, cKeepIdx, vtKeepIdx);
+    [posOccupancy, posSpikes, posRates, posRatesSmooth] = calculate_rate_map(c, vt);
     
     % hd map
-    [hdOccupancy, hdSpikes, hdRates, hdScore] = calculate_hd_map(c, vt, cKeepIdx, vtKeepIdx);
+    [hdOccupancy, hdSpikes, hdRates, hdScore] = calculate_hd_map(c, vt);
     
     % speed map
-    [speedOccupancy, speedSpikes, speedRates] = calculate_speed_map(c, vt, cKeepIdx, vtKeepIdx);
+    [speedOccupancy, speedSpikes, speedRates] = calculate_speed_map(c, vt);
     
     % isi
     spikeISI = diff(c.timestamps)*1e-6; % in seconds
@@ -84,16 +85,9 @@ for ii_cell = cell_list
     
     savefig(fig, fullfile(filepath_fig, filename_fig), 'compact');
     saveas(fig, fullfile(filepath_fig, [filename_fig '.png']), 'png');
-    close all;
-    fprintf('\t\tSaved %s\n', fullfile(filepath_fig, filename_fig));
     
-%     if (length(c.timestamps) >= 300 && ... % more than 300 spikes
-%             (s.end_time - s.start_time)*1e-6 >= 10 && ... % longer than 10 minutes
-%             hdScore >= hdThr) %% significance shuffling
-%         hdFile = matfile(fullfile(p.path_dataout, 'hdCells.mat'), 'Writable', true);
-%         hdFile.hdCells = unique([hdFile.hdCells c.cell_number]);                           
-%     end
-%     
+    close all;
+    fprintf('\t\tSaved %s\n', fullfile(filepath_fig, filename_fig));  
 end % cells
 
 end % functions
