@@ -47,7 +47,6 @@ switch nargin
         
 end
 
-
 %% setting parameters
 p_in.r_threshold = 0.9;   % the higher this value, less spikes are accepted
 p_in.path_datain = '\\GutfreundNLX\CheetahData'; % prefix for all data folders

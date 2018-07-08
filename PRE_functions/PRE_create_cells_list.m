@@ -114,12 +114,14 @@ for ii_exp = 1:length(P)
                 
                 %% interpolate spikes
                 spikePos = interp_spikes(Timestamps, CellNumbers, ii_cell, orgVt, p);
+                spikePos = index_to_keep(spikePos, p, p.S(ii_nses));
                 
                 % get only current session video info
                 sessionPos = session_video(sessionStartTime, sessionEndTime, orgVt);
+                sessionPos = index_to_keep(sessionPos, p, p.S(ii_nses));
                 
                 % claculate spike train
-%                 c = spike_train(c, Timestamps, CellNumbers, ii_cell, vt);
+                % c = spike_train(c, Timestamps, CellNumbers, ii_cell, vt);
                 
                 % get spike shape
                 spikeShape = Samples(:, :, CellNumbers == ii_cell);
