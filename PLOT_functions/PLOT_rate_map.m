@@ -1,10 +1,8 @@
 %% rate map
 subplot(m, n, count);
-pcolor(posRatesSmooth');
-colormap(jet);
-shading flat;
-axis tight;
-axis off;
+
+sc(posRatesSmooth, jet);
 colorbar;
+set(gca, 'YDir', 'normal'); % imagesc/sc flips the x axis for whichever reason
 
 count = count + 1;

@@ -21,9 +21,8 @@ end
 %% main
 binEdges = 0:boxSize/nPosBins:boxSize;
 
-posOccupancy = histcounts2(vt.posx_c, vt.posy_c, binEdges, binEdges);
-posSpikes = histcounts2(c.posx_c, c.posy_c, binEdges, binEdges);
-
+posOccupancy = histcounts2(vt.posy_c, vt.posx_c, binEdges, binEdges);
+posSpikes = histcounts2(c.posy_c, c.posx_c, binEdges, binEdges);
 
 posRates = posSpikes ./ (posOccupancy.*dt); % calculate rate map normalized to the time in seconds
 
@@ -33,4 +32,4 @@ posRates(isinf(posRates)) = NaN; % remove infs
 posRates(posRates >= nanmean(posRates(:)) + 5*nanstd(posRates(:))) = NaN;
 
 posRatesSmooth = nanconv(posRates, fspecial('gaussian', 3*[3 3], 3)); % smooth
-% end
+end

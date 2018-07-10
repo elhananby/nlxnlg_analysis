@@ -241,8 +241,7 @@ if strcmpi( color_right_LED, 'Red' )
     
 elseif strcmpi( color_right_LED, 'Green' )
     posx = filtfilt(b, a, x2_interp); posy = filtfilt(b, a, y2_interp);
-    posx2 = filtfilt(b, a, x1_interp); posy2 = filtfilt(b, a, y1_interp);
-    
+    posx2 = filtfilt(b, a, x1_interp); posy2 = filtfilt(b, a, y1_interp);   
 end
 
 posx = posx./px2cm; posy = posy./px2cm;

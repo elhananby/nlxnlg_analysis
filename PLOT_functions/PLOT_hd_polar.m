@@ -20,7 +20,7 @@ polarplot(hdBins, cconv(hdRates/max(hdRates), win, nHdBins));
 hdMean = circ_mean(hdBins', hdRates');
 hdScoreP = circ_rtest(hdBins', hdRates');
 hdScore = circ_r(hdBins', hdRates');
-hdHaScore = circ_otest(hdBins', [], hdRates');
+% hdHaScore = circ_otest(hdBins', [], hdRates');
 
 % hd score
 polarplot([hdMean hdMean], [0 hdScore], 'r', 'LineWidth', 3);

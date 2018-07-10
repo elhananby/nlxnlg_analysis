@@ -28,10 +28,10 @@ else
 end
 
 cell_files_to_load = {};
-line = 0;
+
 %% loop over experiments
 for ii_exp = 1:length(P)
-    fprintf('Exp %i %.2f%% - ', ii_exp, ii_exp*100/length(P));
+    fprintf('Exp %i %.2f%%\n', ii_exp, ii_exp*100/length(P));
     % initiate temporary p structure
     p = P(ii_exp);
     
@@ -51,6 +51,7 @@ for ii_exp = 1:length(P)
     for ii_nses = 1:length(p.S)
         sessionStartTime = p.S(ii_nses).start_time;
         sessionEndTime = p.S(ii_nses).end_time;
+        s = p.S(ii_nses);
         
         %% loop over tetrode files
         for ii_tetrode = 1:length(files_to_load)
@@ -67,6 +68,8 @@ for ii_exp = 1:length(P)
             
             [Timestamps, CellNumbers, FD, Samples, Header] = Nlx2MatSpike( Filename, [1 0 1 1 1], 1, ExtractionMode, ExtractionModeVector); % load current spike file
             
+    
+            
             % if file not spike sorted
             if all(CellNumbers == 0)
                 continue;
@@ -78,25 +81,42 @@ for ii_exp = 1:length(P)
 %                 elseif strcmpi(str, 'N'), fprintf('Perform Spike sorting and then press any key to continue'); pause; end
             end
             
-            % if the cluster size = all spikes, this is a marker for a
-            % spikeless file and we can continue
+            % if the cluster size = all spikes, this is a marker for a spikeless file and we can continue
             if length(find(CellNumbers == 1)) == length(CellNumbers)
                 continue;
             end
             
             cn = unique(CellNumbers(CellNumbers ~= 0)); % find all non-zero cell numbers
-%             ad2uv = header{}; % get ADC2uV values
             
             %% loop over cells in CellNumbers
             for ii_cell = cn
-%                 fprintf(repmat('\b',1,line));
-                fprintf('%i - animal %i%s, Day %i, TT%iC%i\n',...
-                    curr_cell, p.animal, p.animal_name, p.day, ii_tetrode, ii_cell);
                 
-                % create new cells line
+                %% check if cell exists in excel
+                % ID, Name, Day, Exp, Session, TT, Cell
+                % create index to check if cell already exists in db
+                current_cell_string = sprintf('%i_%s_%i_%i_%i_%i_%i',...
+                    p.animal,...        % ID
+                    p.animal_name,...   % name
+                    p.day,...           % day
+                    p.experiment,...    % exp
+                    ii_nses,...         % session
+                    ii_tetrode,...      % TT
+                    ii_cell);           % cell
+                
+                % check if line already exists in excel cell list
+                curr_existing_cell = find(strcmp(current_cell_string, existing_cells));
+                
+                %% create new cells line
                 metaData = struct;
                 
-                metaData.cell_number = curr_cell;
+                % if the line already exists in cell list, we want to take
+                % the cell number from there
+                if ~isempty(curr_existing_cell)
+                    metaData.cell_number = curr_existing_cell;
+                else % otherwise add new cell using curr_cell
+                    metaData.cell_number = curr_cell;
+                end
+                
                 metaData.animal = p.animal;
                 metaData.animal_name = p.animal_name;
                 metaData.day = p.day;
@@ -113,31 +133,33 @@ for ii_exp = 1:length(P)
                 metaData.Lratio = L_Ratio(FD', ClusterSpikes);
                 
                 %% interpolate spikes
-                spikePos = interp_spikes(Timestamps, CellNumbers, ii_cell, orgVt, p);
-                spikePos = index_to_keep(spikePos, p, p.S(ii_nses));
+                c = interp_spikes(Timestamps, CellNumbers, ii_cell, orgVt, p);
+                c = index_to_keep(c, p, s);
                 
                 % get only current session video info
-                sessionPos = session_video(sessionStartTime, sessionEndTime, orgVt);
-                sessionPos = index_to_keep(sessionPos, p, p.S(ii_nses));
+                vt = session_video(sessionStartTime, sessionEndTime, orgVt);
+                vt = index_to_keep(vt, p, s);
                 
                 % claculate spike train
                 % c = spike_train(c, Timestamps, CellNumbers, ii_cell, vt);
                 
-                % get spike shape
-                spikeShape = Samples(:, :, CellNumbers == ii_cell);
+                % get spike shape (if not nlg session)
+                if ~strcmpi(p.nlgnlx, 'nlg')
+                    
+                    ADBits2Volts = regexpi(Header(contains(Header, 'ADBitVolts')),...
+                        '(\d.\d+)','match'); % get adbits2volts from header
+                    ADBits2Volts = cellfun(@str2double, ADBits2Volts{:}) * 1e6; % convert to double microvolt
+                else % then the values are already in microvolt
+                    
+                    ADBits2Volts = [1 1 1 1];
+                end
+                
+                spikeShape = [];
+                for iiChan = 1:size(Samples, 2)
+                    spikeShape(:, iiChan, :) = Samples(:, iiChan, CellNumbers == ii_cell) .* ADBits2Volts(iiChan); % convert to microvolts
+                end
                 
                 %% save cell file and update excel sheet
-                
-                % create index to check if cell already exists in db
-                current_cell_string = sprintf('%i_%s_%i_%i_%i_%i_%i',...
-                    p.animal,...
-                    p.animal_name,...
-                    p.day,...
-                    p.experiment,...
-                    ii_nses,...
-                    ii_tetrode,...
-                    ii_cell);
-                
                 % create filename structure
                 outfile_name = sprintf('%i_%i-%s_%s_Day%d_Exp%i_Session%i_TT%i_Cell%i.mat',...
                     metaData.cell_number, p.animal, p.animal_name, p.nlgnlx, p.day, p.experiment, ii_nses, ii_tetrode, ii_cell);
@@ -152,28 +174,28 @@ for ii_exp = 1:length(P)
                     mkdir(fileparts(outfile_FULL));
                 end
                 
-                % no excel AND yes file
+                % yes file AND no excel
                 if exist(outfile_FULL, 'file') && ~any(strcmp(current_cell_string, existing_cells))
                     
                     % update excel but don't save file
                     xlswrite(excel_file, excel_line, 'Cells', sprintf('A%i', curr_cell+1));
+                    curr_cell = curr_cell + 1; % for excel file
                     
-                    % no file AND yes excel
+                % no file AND yes excel
                 elseif ~exist(outfile_FULL, 'file') && any(strcmp(current_cell_string, existing_cells))
                     
                     % save file but don't update excel
-                    save(outfile_FULL, 'metaData', 'spikePos', 'sessionPos', 'p', 'spikeShape');
+                    save(outfile_FULL, 'metaData', 'c', 'vt', 'p', 'spikeShape');
                     
-                    % no file AND no excel
+                % no file AND no excel
                 elseif ~exist(outfile_FULL, 'file') && ~any(strcmp(current_cell_string, existing_cells))
                     
                     % save file and update excel
                     xlswrite(excel_file, excel_line, 'Cells', sprintf('A%i', curr_cell+1));
-                    save(outfile_FULL, 'metaData', 'spikePos', 'sessionPos', 'p', 'spikeShape');
+                    save(outfile_FULL, 'metaData', 'c', 'vt', 'p', 'spikeShape');
+                    curr_cell = curr_cell + 1; % for excel file
                     
                 end
-                
-                curr_cell = curr_cell + 1; % for excel file
                 
                 cell_files_to_load{end+1} = outfile_FULL;
 
@@ -187,7 +209,7 @@ end % experiment
 
 end
 
-function spikePos = interp_spikes(ts, cn, cell, vt, p)
+function c = interp_spikes(ts, cn, cell, vt, p)
 dbstop if error
 %% INTERPSPIKES interpolates spike values
 %   c - cell structure to update
@@ -197,29 +219,24 @@ dbstop if error
 %   vt - video data
 
 if strcmpi(p.nlgnlx, 'nlg')
-    spikePos.timestamps = ts(cn == cell)' + polyval(p.nlg.align_timestamps_nlg2nlx.p,...
+    c.timestamps = ts(cn == cell)' + polyval(p.nlg.align_timestamps_nlg2nlx.p,...
         ts(cn == cell)',...
         p.nlg.align_timestamps_nlg2nlx.S,...
         p.nlg.align_timestamps_nlg2nlx.mu);
-else, spikePos.timestamps = ts(cn == cell)';
+else, c.timestamps = ts(cn == cell)';
 end
 
-% if any(p.throw_away_times)
-%     idxToRemove = PRE_throw_away_times(metaData.timestamps, p.throw_away_times);
-%     metaData.timestamps(idxToRemove) = [];
-% end
-
-spikePos.posx       = interp1(vt.timestamps, vt.posx, spikePos.timestamps);
-spikePos.posx2      = interp1(vt.timestamps, vt.posx2, spikePos.timestamps);
-spikePos.posy       = interp1(vt.timestamps, vt.posy, spikePos.timestamps);
-spikePos.posy2      = interp1(vt.timestamps, vt.posy2, spikePos.timestamps);
-spikePos.posx_c     = interp1(vt.timestamps, vt.posx_c, spikePos.timestamps);
-spikePos.posy_c     = interp1(vt.timestamps, vt.posy_c, spikePos.timestamps);
-spikePos.poshd      = interp1(vt.timestamps, vt.poshd, spikePos.timestamps);
-spikePos.vx         = interp1(vt.timestamps, vt.vx, spikePos.timestamps);
-spikePos.vy         = interp1(vt.timestamps, vt.vy, spikePos.timestamps);
-spikePos.speed      = interp1(vt.timestamps, vt.speed, spikePos.timestamps);
-spikePos.angVel     = interp1(vt.timestamps, vt.angVel, spikePos.timestamps);
+c.posx       = interp1(vt.timestamps, vt.posx, c.timestamps);
+c.posx2      = interp1(vt.timestamps, vt.posx2, c.timestamps);
+c.posy       = interp1(vt.timestamps, vt.posy, c.timestamps);
+c.posy2      = interp1(vt.timestamps, vt.posy2, c.timestamps);
+c.posx_c     = interp1(vt.timestamps, vt.posx_c, c.timestamps);
+c.posy_c     = interp1(vt.timestamps, vt.posy_c, c.timestamps);
+c.poshd      = interp1(vt.timestamps, vt.poshd, c.timestamps);
+c.vx         = interp1(vt.timestamps, vt.vx, c.timestamps);
+c.vy         = interp1(vt.timestamps, vt.vy, c.timestamps);
+c.speed      = interp1(vt.timestamps, vt.speed, c.timestamps);
+c.angVel     = interp1(vt.timestamps, vt.angVel, c.timestamps);
 end
 
 function c = spike_train(c, ts, cn, cell, vt)

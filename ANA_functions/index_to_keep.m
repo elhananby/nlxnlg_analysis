@@ -6,7 +6,7 @@ function varargout = index_to_keep(st, p, s)
 %   OUTPUT: CLEAN STRUCT and keepIdx (if invoked)
 
 sessionTime = find(st.timestamps <= s.start_time | st.timestamps >= s.end_time); % get only session times
-% speed_threshold = find(arr.speed >= 50 | arr.speed <= 1); % get speed threshold
+% speed_threshold = find(st.speed >= 50 | st.speed <= 2); % get speed threshold
 noBehavior = find(PRE_throw_away_times(st.timestamps, p.throw_away_times)); % remove throw away times
 throwIdx = unique([sessionTime noBehavior]);
 

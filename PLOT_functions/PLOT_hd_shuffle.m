@@ -10,7 +10,7 @@ for ii_shuffle = 1:1000
     iCKeepIdx = index_to_keep(iC, p, s); % calculate indices to keep for shifted values
     
     % variable of interest
-    [~, ~, shuffledHdRates, ~] = calculate_hd_map(iC, vt, iCKeepIdx, vtKeepIdx);
+    [~, ~, shuffledHdRates, ~] = calculate_hd_map(iC, vt);
     hdBins = linspace(-pi, pi, nHdBins);
     shuffledHdScore(ii_shuffle) = circ_r(hdBins', shuffledHdRates');
 end

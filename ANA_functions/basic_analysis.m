@@ -12,8 +12,6 @@ for ii_cell = cell_list
     
     load(ii_cell{1});
     % correct struct names for analysis
-    c = spikePos;
-    vt = sessionPos;
     s = p.S(metaData.session);
     
     fprintf('Animal %i-%s\tDay %i\tExperiment %i\tSession %i\tTetrode %i\tCell %i\n',...
@@ -25,12 +23,7 @@ for ii_cell = cell_list
     fig = figure('Units', 'Normalized',...
         'Position', [0 0 1 1],...
         'Visible', 'off');
-    
-    %% cleaning thresholds
-    % use structfun to apply indices for each array of struct
-    c = structfun(@(x) x(index_to_keep(c, p, s)), c, 'UniformOutput', false); 
-    vt = structfun(@(x) x(index_to_keep(vt, p, s)), vt, 'UniformOutput', false);
-    
+
     %% calculate basic stuff
     % rate map
     [posOccupancy, posSpikes, posRates, posRatesSmooth] = calculate_rate_map(c, vt);
@@ -39,7 +32,10 @@ for ii_cell = cell_list
     [hdOccupancy, hdSpikes, hdRates, hdScore] = calculate_hd_map(c, vt);
     
     % speed map
-    [speedOccupancy, speedSpikes, speedRates] = calculate_speed_map(c, vt);
+    [speedOccupancy, speedSpikes, speedRates, speedScore] = calculate_speed_map(c, vt);
+    
+    % border map
+    [borderOccupancy, borderSpikes, borderRates] = calculate_border_map(c, vt);
     
     % isi
     spikeISI = diff(c.timestamps)*1e-6; % in seconds
@@ -48,7 +44,7 @@ for ii_cell = cell_list
 %     [rSpikeTrain, lagsSpikeTrain] = xcorr(c.spikeTrain, 500);
     
     % border curve
-    [borderIdx, borderCurve] = calculate_border_score(c);   
+%     [borderIdx, borderCurve] = calculate_border_score(c);   
     
     %% plot all the basic stuff
     count = 1;
@@ -61,10 +57,11 @@ for ii_cell = cell_list
     PLOT_hd_polar;
     PLOT_hd_speed;
     PLOT_hd_half;
-    PLOT_hd_histogram;
+%     PLOT_hd_histogram;
     PLOT_hd_shuffle;
-    PLOT_border_shuffle;
+%     PLOT_border_shuffle;
     PLOT_speed_map;
+    PLOT_border_map;
     
     %% title
     suptitle(sprintf('%s \t Animal %i \t Day %i \n Experiment %i \t Session %i - %s \n TT %i \t Cell %i',...
