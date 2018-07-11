@@ -61,6 +61,9 @@ for ii_cell = cell_list
     PLOT_hd_shuffle;
 %     PLOT_border_shuffle;
     PLOT_speed_map;
+    if abs(speedScore >= 0.2)
+        PLOT_speed_shuffle;
+    end
     PLOT_border_map;
     
     %% title

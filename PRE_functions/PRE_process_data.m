@@ -146,8 +146,11 @@ cells = {};
 printLine = 0;
 
 for iiCell = 1:length(cellsToProcess)
+    % display progress
     fprintf(repmat('\b', 1, printLine));
     printLine = fprintf('%.2f', iiCell*100/length(cellsToProcess));
+    
+    % load cell
     load(cellsToProcess(iiCell).name);
     
     % calculate occupancy percentage
@@ -155,10 +158,13 @@ for iiCell = 1:length(cellsToProcess)
     occupancyMap = histcounts2(vt.posx_c, vt.posy_c, binEdges, binEdges);
     occupancyPercentage = numel(find(occupancyMap))./numel(occupancyMap);
     
+    % calculate speed score
+    [~, ~, ~, speedScore] = calculate_speed_map(c, vt);
+    
     % keep only cells where the session >= 10 minutes and more than 300
     % spikes and occupancy > .75
     if (p.S(metaData.session).end_time - p.S(metaData.session).start_time)*1e-6/60 >= 10 &&...
-            length(c.timestamps) >= 300 && occupancyPercentage >= .75
+            length(c.timestamps) >= 300 && abs(speedScore >= .2)
         cells{idx} = cellsToProcess(iiCell).name;
         idx = idx + 1;
     end
