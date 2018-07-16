@@ -125,7 +125,7 @@ for ii_channel = 1:4
                         Artifacts_start_end_timestamps_no_removal{ii_channel,artifact_counter} = current_timestamps(1,[Zero_cross_start_without_removal,length(current_timestamps)]);
                     else
                         Artifacts_start_end_timestamps_no_removal{ii_channel,artifact_counter} = current_timestamps(1,[Zero_cross_start_without_removal,Zero_cross_end_without_removal]);
-                    end;
+                    end
                     merged_artifact_points = [];											% reinitialize merged artifact
                     
                     % plot debug info
@@ -169,7 +169,7 @@ Artifacts.data.Artifacts_start_end_timestamps_no_removal = Artifacts_start_end_t
 Artifacts.data.Total_artifact_time = file_artifact_time;
 
 eval( ['save ', filename_out_save, ' Artifacts'] );
-disp(sprintf('Total artifact time in minute %d : %d:', ii_file, file_artifact_time))
+fprintf('Total artifact time in minute %d : %d\n', ii_file, file_artifact_time)
 
 end % func
 

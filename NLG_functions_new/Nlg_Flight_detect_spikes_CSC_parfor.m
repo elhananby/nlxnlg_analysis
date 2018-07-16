@@ -21,21 +21,15 @@ coincidence_window = 500 ; % Duration of coincidence-detection window (in micros
 
 %-----------------------------------------------------------------------
 
-Day					= p.day;
-Bat					= p.bat;
 
-used_channels=1:4;
-
-times_microsec_pre_sleep_session_1	= [p.S(1).start_time ;p.S(1).end_time];
 times_microsec_behav_session_2		= [p.S(2).start_time ;p.S(2).end_time];
-times_microsec_post_sleep_session_3 = [p.S(3).start_time ;p.S(3).end_time];
 
 
 
 %--------------------------------------------
 % changed for every recording day.  for this batch file only
 
-Spike_threshold_uV_units = p.Spike_threshold_uV_units;
+Spike_threshold_uV_units = 40;
 
 %--------------------------------------------
 % mostly constant.					for this batch file only
@@ -43,8 +37,8 @@ Spike_threshold_uV_units = p.Spike_threshold_uV_units;
 library_file = 'library_of_acceptable_spike_shapes.mat'; % File containing the Library Of Acceptable Spike Shapes
 
 
-dir_data_in							= [p.path_dataout p.path_year_bat num2str(Day) '\'];
-filename_associated_VT_file			= [ p.path_dataout p.path_year_bat num2str(Day) '\' 'VT_flight_extracted_bat' num2str(Bat) '.mat']
+dir_data_in	= [p.path_dataout p.path_year_bat num2str(Day) '\'];
+% filename_associated_VT_file = [ p.path_dataout p.path_year_bat num2str(Day) '\' 'VT_flight_extracted_bat' num2str(Bat) '.mat']
 
 
 % skip Spike extraction  if we had done this already
@@ -53,7 +47,7 @@ if ~isempty(dir(fullfile(dir_data_in, '*.NTT')))
     disp (['Skipping Spike detection from CSC. Already extracted in ' dir_data_in]);
     disp('======================');
     return;
-end;
+end
 
 threshold_type = 1; % '1' - use a uV voltage threshold
 
@@ -77,19 +71,15 @@ threshold_type = 1; % '1' - use a uV voltage threshold
 % % session_blocks(3).file_name = 'post_sleep';
 
 %load the number of CSC chunks to analyze
+csc_dir	= fullfile(Recording_directory_general, 'CSC_extracted\');
+load ([csc_dir '\Num_of_analyzed_files.mat']);
 
-load ([p.path_datain p.path_year_bat 'CSC_extracted\' ,num2str(Day), '\Num_of_analyzed_files.mat']);
-session_blocks(1).file_num = Num_of_pre_sleep_analyzed_files;
 session_blocks(2).file_num = Num_of_behav_analyzed_files;
-session_blocks(3).file_num = Num_of_post_sleep_analyzed_files;
 
-
-session_blocks(1).plot_length = 10000;
 session_blocks(2).plot_length = 50000;
-session_blocks(3).plot_length = 10000;
 
 eval(['load ', filename_associated_VT_file]);
-bad_frames_start_end_timestamps = VT.bad_frames_start_end_timestamps;
+% bad_frames_start_end_timestamps = VT.bad_frames_start_end_timestamps;
 Timestamps_accepted_spikes_TT=[];% Initialize
 spikes_TT=[];% Initialize
 

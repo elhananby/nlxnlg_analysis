@@ -59,26 +59,16 @@ for ii_channel = Active_channels
     end
     
     Samples_filt = filtfilt( win_filter, 1, Samples_current ); % Use UN-DECIMATED data
-    %Samples_filtered = [Samples_filtered Samples_filt];
-    %
-    %                         % FOR DBG
-    %                         figure; h1 = subplot(2,1,1); plot(Samples_current); set(gca,'ylim',[-200,200])
-    %                         h2 = subplot(2,1,2); plot(Samples_filt); set(gca,'ylim',[-200,200])
-    %                         linkaxes([h1,h2], 'x');
-    % if you want to see your filter:
-    % srate = CSC_Sampling_Rate_Hz;
-    % figure;
-    % pwelch(win_filter, ones(1,length(win_filter)), 0, length(win_filter), srate )
-    
+
     % Find the IXs that we wrote to ourselfs (during the recording itself) to
     % throw away from the behav session:
-    if ~isempty(t_throw_away_data)
-        IXs_to_throw_away = find((Timestamps_current>t_throw_away_data(1))&((Timestamps_current<t_throw_away_data(2))));
-        if ~isempty(IXs_to_throw_away)
-            Samples_filt(IXs_to_throw_away) = [];
-            Timestamps_current(IXs_to_throw_away) = [];
-        else end
-    else end
+%     if ~isempty(t_throw_away_data)
+%         IXs_to_throw_away = find((Timestamps_current>t_throw_away_data(1))&((Timestamps_current<t_throw_away_data(2))));
+%         if ~isempty(IXs_to_throw_away)
+%             Samples_filt(IXs_to_throw_away) = [];
+%             Timestamps_current(IXs_to_throw_away) = [];
+%         end
+%     end
     
     
     if length(Timestamps_current)>3 % i.e., we didn't throw away all the data for this window in the previous stage

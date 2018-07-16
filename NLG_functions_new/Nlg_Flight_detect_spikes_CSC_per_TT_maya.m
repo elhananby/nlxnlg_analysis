@@ -12,7 +12,7 @@ coincidence_window = 500 ; % Duration of coincidence-detection window (in micros
 %-----------------------------------------------------------------------
 
 Day					= p.day;
-Bat					= p.bat;
+Bat					= p.animal;
 
 used_channels=1:4;
 
